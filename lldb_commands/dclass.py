@@ -210,7 +210,7 @@ def generate_class_dump(target, options, clean_command=None):
     command_script = r'''
   @import ObjectiveC;
   @import Foundation;
-  unsigned int count = 0;
+  unsigned int classCount = 0;
 
   typedef struct ds_cls_struct {
     void *isa;
@@ -223,23 +223,23 @@ def generate_class_dump(target, options, clean_command=None):
 
   '''
     if options.search_protocols:
-        command_script += 'Protocol **allProtocols = objc_copyProtocolList(&count);\n'
+        command_script += 'Protocol **allProtocols = objc_copyProtocolList(&classCount);\n'
     elif clean_command:
-        command_script += '  const char **allClasses = objc_copyClassNamesForImage("' + clean_command + '", &count);'
+        command_script += '  const char **allClasses = objc_copyClassNamesForImage("' + clean_command + '", &classCount);'
     else:
-        command_script += 'Class *allClasses = objc_copyClassList(&count);\n'
+        command_script += 'Class *allClasses = objc_copyClassList(&classCount);\n'
 
     if options.regular_expression !=  None: 
         command_script += '  NSRegularExpression *regex = [NSRegularExpression regularExpressionWithPattern:@"' + options.regular_expression + '" options:0 error:nil];\n'
 
     if options.search_protocols:
         command_script += '''  NSMutableString *classesString = [NSMutableString string];
-  for (int i = 0; i < count; i++) {
+  for (int i = 0; i < classCount; i++) {
     Protocol *ptl =  allProtocols[i];
         '''
     else: 
         command_script += '''  NSMutableString *classesString = [NSMutableString string];
-      for (int i = 0; i < count; i++) {
+      for (int i = 0; i < classCount; i++) {
         Class cls =  '''
         command_script += 'objc_getClass(allClasses[i]);' if clean_command else 'allClasses[i];'
         command_script += '''
